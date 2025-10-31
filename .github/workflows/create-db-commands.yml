@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate SQL commands from DBML
         run: |
-          dbml2sql --${{ matrix.db }} --input qwparity_schema.dbml --output qwparity_schema_${{ matrix.db }}.sql
+          dbml2sql --${{ matrix.db }} -o qwparity_schema_${{ matrix.db }}.sql qwparity_schema.dbml
 
       - name: Upload artifact
         uses: actions/upload-artifact@v5
