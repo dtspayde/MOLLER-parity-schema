@@ -1,0 +1,333 @@
+Enum "runlet_full_run_enum" {
+  "false"
+  "true"
+}
+
+Enum "analysis_beam_mode_enum" {
+  "nbm"
+  "1"
+  "2"
+  "3"
+}
+
+Enum "analysis_slope_calculation_enum" {
+  "off"
+  "on"
+}
+
+Enum "analysis_slope_correction_enum" {
+  "off"
+  "on"
+}
+
+Enum "slow_controls_settings_slow_helicity_plate_enum" {
+  "0"
+  "1"
+}
+
+Enum "slow_controls_settings_passive_helicity_plate_enum" {
+  "0"
+  "1"
+}
+
+Enum "slow_controls_settings_wien_reversal_enum" {
+  "indeterminate"
+  "normal"
+  "reverse"
+  "transverse_vertical"
+  "transverse_horizontal"
+}
+
+Enum "slow_controls_settings_precession_reversal_enum" {
+  "CCW"
+  "CW"
+  "reverse"
+  "normal"
+}
+
+Enum "slow_controls_settings_charge_feedback_enum" {
+  "0"
+  "1"
+}
+
+Enum "slow_controls_settings_position_feedback_enum" {
+  "0"
+  "1"
+}
+
+Table "db_schema" {
+  "db_schema_id" INT [pk, not null, increment]
+  "major_release_number" CHAR(2) [not null]
+  "minor_release_number" CHAR(2) [not null]
+  "point_release_number" CHAR(4) [not null]
+  "time" TIMESTAMP [not null]
+  "script_name" TEXT
+}
+
+Table "good_for" {
+  "good_for_id" INT [pk, not null, increment]
+  "type" TEXT
+}
+
+Table "run_quality" {
+  "run_quality_id" INT [pk, not null, increment]
+  "type" TEXT
+}
+
+Table "run" {
+  "run_id" INT [pk, not null, increment]
+  "run_number" INT [not null]
+  "slug" INT [not null]
+  "wien_slug" INT [not null]
+  "injector_slug" INT [not null]
+  "run_type" TEXT
+  "start_time" DATETIME
+  "end_time" DATETIME
+  "n_mps" INT [not null]
+  "n_qrt" INT [not null]
+  "comment" TEXT
+}
+
+Table "runlet" {
+  "runlet_id" INT [pk, not null, increment]
+  "run_id" INT [not null]
+  "run_number" INT [not null]
+  "segment_number" INT
+  "full_run" runlet_full_run_enum [not null]
+  "start_time" DATETIME
+  "end_time" DATETIME
+  "first_mps" INT [not null]
+  "last_mps" INT [not null]
+  "comment" TEXT
+}
+
+Table "seeds" {
+  "seed_id" INT [pk, not null, increment]
+  "first_run_id" INT [not null]
+  "last_run_id" INT [not null]
+  "seed" TEXT
+  "comment" TEXT
+}
+
+Table "analysis" {
+  "analysis_id" INT [pk, not null, increment]
+  "runlet_id" INT [not null]
+  "seed_id" INT [not null]
+  "time" DATETIME
+  "bf_checksum" TEXT
+  "beam_mode" analysis_beam_mode_enum [not null]
+  "n_mps" INT [not null]
+  "n_qrt" INT [not null]
+  "first_event" INT
+  "last_event" INT
+  "segment" INT
+  "slope_calculation" analysis_slope_calculation_enum
+  "slope_correction" analysis_slope_correction_enum
+  "root_version" TEXT [not null]
+  "root_file_time" TEXT [not null]
+  "root_file_host" TEXT [not null]
+  "root_file_user" TEXT [not null]
+  "analyzer_name" TEXT [not null]
+  "analyzer_argv" TEXT [not null]
+  "analyzer_svn_rev" TEXT [not null]
+  "analyzer_svn_lc_rev" TEXT [not null]
+  "analyzer_svn_url" TEXT [not null]
+  "roc_flags" TEXT [not null]
+}
+
+Table "parameter_files" {
+  "parameter_file_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "filename" TEXT [not null]
+}
+
+Table "error_code" {
+  "error_code_id" TINYINT [pk, not null, increment]
+  "quantity" TEXT [not null]
+}
+
+Table "general_errors" {
+  "general_errors_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "error_code_id" TINYINT [not null]
+  "n" INT [not null]
+}
+
+Table "measurement_type" {
+  "measurement_type_id" CHAR(3) [pk, not null]
+  "units" TEXT [not null]
+  "title" TEXT [not null]
+}
+
+Table "slope_type" {
+  "slope_type_id" INT [pk, not null, increment]
+  "slope" TEXT [not null]
+  "units" TEXT [not null]
+  "title" TEXT [not null]
+}
+
+Table "monitor" {
+  "monitor_id" INT [pk, not null, increment]
+  "quantity" TEXT [not null]
+  "title" TEXT [not null]
+}
+
+Table "main_detector" {
+  "main_detector_id" INT [pk, not null, increment]
+  "quantity" TEXT [not null]
+  "title" TEXT [not null]
+}
+
+Table "lumi_detector" {
+  "lumi_detector_id" INT [pk, not null, increment]
+  "quantity" TEXT [not null]
+  "title" TEXT [not null]
+}
+
+Table "md_data" {
+  "md_data_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "main_detector_id" INT
+  "measurement_type_id" CHAR(3) [not null]
+  "subblock" TINYINT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+}
+
+Table "md_errors" {
+  "md_errors_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "main_detector_id" INT [not null]
+  "error_code_id" TINYINT [not null]
+  "n" INT [not null]
+}
+
+Table "lumi_data" {
+  "lumi_data_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "lumi_detector_id" INT
+  "measurement_type_id" CHAR(3) [not null]
+  "subblock" TINYINT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+}
+
+Table "lumi_errors" {
+  "lumi_errors_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "lumi_detector_id" INT [not null]
+  "error_code_id" TINYINT [not null]
+  "n" INT [not null]
+}
+
+Table "beam" {
+  "beam_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "monitor_id" INT [not null]
+  "measurement_type_id" CHAR(3) [not null]
+  "subblock" TINYINT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+}
+
+Table "beam_errors" {
+  "beam_errors_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "monitor_id" INT [not null]
+  "error_code_id" TINYINT [not null]
+  "n" INT [not null]
+}
+
+Table "md_slope" {
+  "md_slope_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "slope_type_id" INT [not null]
+  "measurement_type_id" CHAR(3) [not null]
+  "main_detector_id" INT [not null]
+  "subblock" TINYINT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+}
+
+Table "lumi_slope" {
+  "lumi_slope_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "slope_type_id" INT [not null]
+  "measurement_type_id" CHAR(3) [not null]
+  "lumi_detector_id" INT [not null]
+  "subblock" TINYINT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+}
+
+Table "slow_controls_settings" {
+  "slow_controls_settings_id" INT [pk, not null, increment]
+  "runlet_id" INT [not null]
+  "slow_helicity_plate" slow_controls_settings_slow_helicity_plate_enum
+  "passive_helicity_plate" slow_controls_settings_passive_helicity_plate_enum
+  "wien_reversal" slow_controls_settings_wien_reversal_enum
+  "precession_reversal" slow_controls_settings_precession_reversal_enum
+  "helicity_length" INT
+  "charge_feedback" slow_controls_settings_charge_feedback_enum
+  "position_feedback" slow_controls_settings_position_feedback_enum
+  "qtor_current" FLOAT
+  "target_position" TEXT
+}
+
+Table "sc_detector" {
+  "sc_detector_id" INT [pk, not null, increment]
+  "name" TEXT [not null]
+  "units" TEXT [not null]
+  "comment" TEXT [not null]
+}
+
+Table "slow_controls_data" {
+  "slow_controls_data_id" INT [pk, not null, increment]
+  "runlet_id" INT [not null]
+  "sc_detector_id" INT [not null]
+  "n" INT [not null]
+  "value" FLOAT [not null]
+  "error" FLOAT [not null]
+  "min_value" FLOAT [not null]
+  "max_value" FLOAT [not null]
+}
+
+Table "slow_controls_strings" {
+  "slow_controls_strings_id" INT [pk, not null, increment]
+  "runlet_id" INT [not null]
+  "sc_detector_id" INT [not null]
+  "value" TEXT [not null]
+}
+
+Table "bf_test" {
+  "bf_test_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "test_number" INT
+  "test_value" FLOAT
+}
+
+Table "modulation_type" {
+  "modulation_type_id" INT [pk, not null, increment]
+  "type" TEXT
+}
+
+Table "beam_optics" {
+  "beam_optics_id" INT [pk, not null, increment]
+  "analysis_id" INT [not null]
+  "monitor_id" INT [not null]
+  "modulation_type_id" INT [not null]
+  "n" INT [not null]
+  "amplitude" FLOAT [not null]
+  "phase" FLOAT [not null]
+  "offset" FLOAT [not null]
+  "a_error" FLOAT [not null]
+  "p_error" FLOAT [not null]
+  "o_error" FLOAT [not null]
+  "gof_para" FLOAT [not null]
+}
+
