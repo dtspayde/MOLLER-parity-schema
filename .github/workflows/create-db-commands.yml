@@ -67,3 +67,33 @@ jobs:
           name: qwparity_schema_${{ matrix.db }}.sql
           path: qwparity_schema_${{ matrix.db }}.sql
           if-no-files-found: error
+
+  create-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      pull-requests: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download schema diagram artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: qwparity_schema.svg
+          path: docs/
+
+      - name: Create GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/
+          retention-days: 7
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
