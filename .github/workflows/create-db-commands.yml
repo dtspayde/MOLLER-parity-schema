@@ -1,0 +1,102 @@
+---
+name: Create DB commands from DBML schema definition
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  create-db-diagram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install dbml-renderer
+        run: npm install -g @softwaretechnik/dbml-renderer
+
+      - name: Generate DB diagram from DBML
+        run: |
+          dbml-renderer -i qwparity_schema.dbml -f svg -o qwparity_schema.svg
+          dbml-renderer -i qwparity_schema.dbml -f dot -o qwparity_schema.dot
+
+      - name: Upload artifact (svg)
+        uses: actions/upload-artifact@v5
+        with:
+          name: qwparity_schema.svg
+          path: qwparity_schema.svg
+          if-no-files-found: error
+
+      - name: Upload artifact (dot)
+        uses: actions/upload-artifact@v5
+        with:
+          name: qwparity_schema.dot
+          path: qwparity_schema.dot
+          if-no-files-found: error
+
+  create-db-commands:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        db: [ mysql, postgresql ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install dbml-cli
+        run: npm install -g @dbml/cli
+
+      - name: Generate SQL commands from DBML
+        run: |
+          dbml2sql --${{ matrix.db }} -o qwparity_schema_${{ matrix.db }}.sql qwparity_schema.dbml
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: qwparity_schema_${{ matrix.db }}.sql
+          path: qwparity_schema_${{ matrix.db }}.sql
+          if-no-files-found: error
+
+  create-docs:
+    runs-on: ubuntu-latest
+    needs:
+    - create-db-diagram
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+      pull-requests: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download schema diagram artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: qwparity_schema.svg
+          path: docs/
+
+      - name: Create GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/
+          retention-days: 7
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
