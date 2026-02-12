@@ -1,0 +1,123 @@
+enum element {
+  "tq01r1"
+  "tq01r2"
+  "tq01r3"
+  "tq01r4"
+  "tq01r5c"
+  "tq01r5l"
+  "tq01r5r"
+  "tq01r6"
+  "tq02r1"
+  "tq02r2"
+  "tq02r3"
+  "tq02r4"
+  "tq02r5c"
+  "tq02r5l"
+  "tq02r5r"
+  "tq02r6"
+  "sm01"
+  "sm02"
+  "sm03"
+  "lm01"
+  "lm02"
+  "lm03"
+  "pd01"
+  "pd02"
+  "pd03"
+}
+
+Table "run" {
+  "run_id" integer [pk, not null, increment]
+  "run_number" integer [not null]
+  "slug" integer
+  "wien_slug" integer
+  "injector_slug" integer
+  "run_type" text
+  "good_for_id" integer
+  "run_quality_id" integer
+  "start_time" timestamp
+  "end_time" timestamp
+  "n_mps" integer [not null]
+  "n_qrt" integer [not null]
+  "comment" text
+}
+
+Table "runlet" {
+  "runlet_id" integer [pk, not null, increment]
+  "run_id" integer [not null]
+  "run_number" integer [not null]
+  "segment_number" integer [not null]
+  "full_run" boolean [not null]
+  "start_time" timestamp
+  "end_time" timestamp
+  "first_mps" integer [not null]
+  "last_mps" integer [not null]
+  "comment" text
+}
+
+Ref: runlet.run_id > run.run_id
+
+Table "analysis" {
+  "analysis_id" integer [pk, not null, increment]
+  "runlet_id" integer [not null]
+  "seed_id" integer [not null]
+  "time" timestamp
+  "bf_checksum" text
+  "beam_mode" analysis_beam_mode_enum [not null]
+  "n_mps" integer [not null]
+  "n_qrt" integer [not null]
+  "first_event" integer
+  "last_event" integer
+  "segment" integer
+  "slope_calculation" analysis_slope_calculation_enum
+  "slope_correction" analysis_slope_correction_enum
+  // "root_version" text [not null]
+  // "root_file_time" text [not null]
+  // "root_file_host" text [not null]
+  // "root_file_user" text
+  // "analyzer_name" text [not null]
+  // "analyzer_argv" text [not null]
+  // "analyzer_svn_rev" text [not null]
+  // "analyzer_svn_lc_rev" text [not null]
+  // "analyzer_svn_url" text [not null]
+  // "roc_flags" text [not null]
+}
+
+Ref: analysis.runlet_id > runlet.runlet_id 
+
+Table "element_data" {
+  "element_data_id" bigint [pk, not null, increment]
+  "analysis_id" integer [not null]
+  "element" element [not null]
+  "subblock" smallint [not null]
+  "n_yield" integer [not null]
+  "val_yield" float [not null]
+  "err_yield" float [not null]
+  "n_asym" integer [not null]
+  "val_asym" float [not null]
+  "err_asym" float [not null]
+  "n_diff" integer [not null]
+  "val_diff" float [not null]
+  "err_diff" float [not null]
+}
+
+Ref: element_data.analysis_id > analysis.analysis_id
+
+Table "element_pair_data" {
+  "element_pair_data_id" bigint [pk, not null, increment]
+  "analysis_id" integer [not null]
+  "element1" element [not null]
+  "element2" element [not null]
+  "subblock" smallint [not null]
+  "n_yield" integer [not null]
+  "val_yield" float [not null]
+  "err_yield" float [not null]
+  "n_asym" integer [not null]
+  "val_asym" float [not null]
+  "err_asym" float [not null]
+  "n_diff" integer [not null]
+  "val_diff" float [not null]
+  "err_diff" float [not null]
+}
+
+Ref: element_pair_data.analysis_id > analysis.analysis_id
