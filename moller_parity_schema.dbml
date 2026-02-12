@@ -1,5 +1,5 @@
 enum element {
-  "tq01r1"
+  "tq01r1" [note: 'Identifier for a thin quartz detector']
   "tq01r2"
   "tq01r3"
   "tq01r4"
@@ -24,6 +24,10 @@ enum element {
   "pd01"
   "pd02"
   "pd03"
+}
+
+Note enum_note {
+  "This enum contains identifiers for all tracked detector and monitor elements."
 }
 
 Table "run" {
