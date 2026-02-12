@@ -15,7 +15,7 @@ enum element {
   "tq02r5l"
   "tq02r5r"
   "tq02r6"
-  "sm01"
+  "sm01" [note: 'Identifier for a small angle monitor']
   "sm02"
   "sm03"
   "lm01"
